@@ -347,7 +347,7 @@ body {
   align-items: center;
   gap: 6px;
   padding: 8px 16px;
-  border-radius: 24px;
+  border-radius: 3px;
   border: 2px solid var(--border);
   background: var(--card);
   color: var(--text);
@@ -445,7 +445,7 @@ body {
 }
 
 .list-item .item-name {
-  font-size: 15px;
+  font-size: 18px;
   font-weight: 500;
   white-space: nowrap;
   overflow: hidden;
@@ -458,7 +458,7 @@ body {
 }
 
 .list-item .item-detail {
-  font-size: 13px;
+  font-size: 16px;
   color: var(--text-secondary);
   margin-top: 2px;
 }

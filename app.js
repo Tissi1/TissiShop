@@ -162,7 +162,7 @@ async function renderList(container) {
       <button class="store-filter ${!state.storeFilter ? 'active' : ''}" data-store="">Tous (${toBuy.length})</button>
       ${stores.map(s => `
         <button class="store-filter ${state.storeFilter === s.id ? 'active' : ''}" data-store="${s.id}">
-          ${s.image ? `<img src="${s.image}" alt="">` : `${s.label || escapeHtml(s.name)}`} (${storeItemCounts[s.id] || 0})
+          ${s.image ? `<img src="${s.image}" alt="">` : `${escapeHtml(s.name)}`} (${storeItemCounts[s.id] || 0})
         </button>
       `).join('')}
     </div>
@@ -769,13 +769,8 @@ async function renderStores(container) {
   let html = `
     <div class="card">
       <h3 class="section-title">Ajouter un magasin</h3>
-      <div class="form-row">
-        <div class="form-group" style="flex:2">
-          <input type="text" id="storeName" placeholder="Nom du magasin">
-        </div>
-        <div class="form-group" style="flex:1">
-          <input type="text" id="storeLabel" placeholder="Libellé (opt.)">
-        </div>
+      <div class="form-group">
+        <input type="text" id="storeName" placeholder="Nom du magasin">
       </div>
       <div class="form-group">
         <label>Image du magasin</label>
@@ -835,7 +830,7 @@ async function renderStores(container) {
     if (!name) { showToast('Le nom est obligatoire', null, 'error'); return; }
     const now = new Date().toISOString();
     await DB.add('stores', {
-      name, label: $('#storeLabel').value.trim(), image: storeImageData,
+      name, image: storeImageData,
       order: stores.length, createdAt: now, updatedAt: now
     });
     showToast(`${name} ajouté`);
@@ -874,15 +869,9 @@ async function renderStores(container) {
 function showStoreEditModal(store) {
   showModal(`
     <h2>Modifier le magasin</h2>
-    <div class="form-row">
-      <div class="form-group" style="flex:2">
-        <label>Nom</label>
-        <input type="text" id="editStoreName" value="${escapeHtml(store.name)}">
-      </div>
-      <div class="form-group" style="flex:1">
-        <label>Libellé</label>
-        <input type="text" id="editStoreLabel" value="${escapeHtml(store.label || '')}">
-      </div>
+    <div class="form-group">
+      <label>Nom</label>
+      <input type="text" id="editStoreName" value="${escapeHtml(store.name)}">
     </div>
     <div class="form-group">
       <label>Image</label>
@@ -919,7 +908,6 @@ function showStoreEditModal(store) {
     const name = $('#editStoreName').value.trim();
     if (!name) { showToast('Le nom est obligatoire', null, 'error'); return; }
     store.name = name;
-    store.label = $('#editStoreLabel').value.trim();
     store.image = imageData;
     store.updatedAt = new Date().toISOString();
     await DB.put('stores', store);
@@ -1232,15 +1220,10 @@ async function seedDatabase() {
   }
 
   const stores = [
-    { name: 'Carrefour', label: 'Carrefour' },
-    { name: 'Leclerc', label: 'Leclerc' },
-    { name: 'Intermarché', label: 'Intermarché' },
-    { name: 'Auchan', label: 'Auchan' },
-    { name: 'Lidl', label: 'Lidl' },
-    { name: 'Picard', label: 'Picard' }
+    'Carrefour', 'Leclerc', 'Intermarché', 'Auchan', 'Lidl', 'Picard', 'Chlorophylle'
   ];
   for (let i = 0; i < stores.length; i++) {
-    await DB.add('stores', { name: stores[i].name, label: stores[i].label, image: '', order: i, createdAt: now, updatedAt: now });
+    await DB.add('stores', { name: stores[i], image: '', order: i, createdAt: now, updatedAt: now });
   }
 
   const products = [
