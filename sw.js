@@ -1,11 +1,11 @@
-const CACHE_NAME = 'ma-liste-courses-v11';
+const CACHE_NAME = 'ma-liste-courses-v12';
 const ASSETS = [
-  '/',
-  '/index.html',
-  '/styles.css',
-  '/app.js',
-  '/db.js',
-  '/manifest.json'
+  './',
+  './index.html',
+  './styles.css',
+  './app.js',
+  './db.js',
+  './manifest.json'
 ];
 
 self.addEventListener('install', (e) => {

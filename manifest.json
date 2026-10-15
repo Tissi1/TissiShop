@@ -2,7 +2,7 @@
   "name": "Ma Liste de Courses",
   "short_name": "Courses",
   "description": "Application personnelle de gestion de listes de courses, hors connexion",
-  "start_url": "/",
+  "start_url": "./",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#00A86B",
