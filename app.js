@@ -122,6 +122,7 @@ async function renderList(container) {
   const list = await ensureActiveList();
   const items = await DB.getByIndex('listItems', 'listId', list.id);
   const stores = await DB.getAll('stores');
+  stores.sort((a, b) => (a.order || 0) - (b.order || 0));
   const products = await DB.getAll('products');
 
   const toBuy = items.filter(i => !i.bought).sort((a, b) => (a.order || 0) - (b.order || 0));
@@ -467,6 +468,7 @@ function showItemEditModal(item) {
 
 async function loadStoreChips(selector, selectedIds = []) {
   const stores = await DB.getAll('stores');
+  stores.sort((a, b) => (a.order || 0) - (b.order || 0));
   const container = document.querySelector(selector);
   if (!container) return;
   container.innerHTML = stores.map(s => {
@@ -791,8 +793,12 @@ async function renderStores(container) {
 
     <div class="card">
       <h3 class="section-title">Magasins <span class="count">(${stores.length})</span></h3>
+      <div id="storesList">
       ${stores.map(s => `
-        <div class="gestion-item" data-id="${s.id}">
+        <div class="gestion-item store-sortable" data-id="${s.id}">
+          <div class="drag-handle" aria-label="Réordonner">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+          </div>
           <div class="item-thumb">
             ${s.image
               ? `<img src="${s.image}" alt="">`
@@ -808,6 +814,7 @@ async function renderStores(container) {
           </button>
         </div>
       `).join('')}
+      </div>
     </div>
     <div class="version">Version ${APP_VERSION}</div>
   `;
@@ -863,6 +870,117 @@ async function renderStores(container) {
         showToast(`${s.name} supprimé`);
       });
     });
+  });
+
+  initStoreDragSort();
+}
+
+function initStoreDragSort() {
+  const list = $('#storesList');
+  if (!list) return;
+  let dragItem = null;
+  let longPressTimer = null;
+  let startY = 0;
+  let placeholder = null;
+
+  function getY(e) {
+    return e.touches ? e.touches[0].clientY : e.clientY;
+  }
+
+  function startDrag(item, y) {
+    dragItem = item;
+    startY = y;
+    dragItem.classList.add('dragging');
+    placeholder = document.createElement('div');
+    placeholder.className = 'drag-placeholder';
+    placeholder.style.height = dragItem.offsetHeight + 'px';
+    dragItem.parentNode.insertBefore(placeholder, dragItem);
+    dragItem.style.position = 'fixed';
+    dragItem.style.left = '0';
+    dragItem.style.right = '0';
+    dragItem.style.zIndex = '1000';
+    dragItem.style.width = list.offsetWidth + 'px';
+    updateDragPosition(y);
+  }
+
+  function updateDragPosition(y) {
+    if (!dragItem) return;
+    const rect = list.getBoundingClientRect();
+    dragItem.style.top = (y - dragItem.offsetHeight / 2) + 'px';
+    const items = [...list.querySelectorAll('.store-sortable:not(.dragging)')];
+    for (const item of items) {
+      const box = item.getBoundingClientRect();
+      const mid = box.top + box.height / 2;
+      if (y < mid) {
+        list.insertBefore(placeholder, item);
+        return;
+      }
+    }
+    list.appendChild(placeholder);
+  }
+
+  async function endDrag() {
+    if (!dragItem) return;
+    dragItem.classList.remove('dragging');
+    dragItem.style.position = '';
+    dragItem.style.left = '';
+    dragItem.style.right = '';
+    dragItem.style.top = '';
+    dragItem.style.zIndex = '';
+    dragItem.style.width = '';
+    if (placeholder && placeholder.parentNode) {
+      placeholder.parentNode.insertBefore(dragItem, placeholder);
+      placeholder.remove();
+    }
+    placeholder = null;
+    const items = [...list.querySelectorAll('.store-sortable')];
+    for (let i = 0; i < items.length; i++) {
+      const id = Number(items[i].dataset.id);
+      const store = await DB.get('stores', id);
+      if (store && store.order !== i) {
+        store.order = i;
+        store.updatedAt = new Date().toISOString();
+        await DB.put('stores', store);
+      }
+    }
+    dragItem = null;
+  }
+
+  list.querySelectorAll('.drag-handle').forEach(handle => {
+    handle.addEventListener('touchstart', (e) => {
+      const item = handle.closest('.store-sortable');
+      longPressTimer = setTimeout(() => {
+        e.preventDefault();
+        startDrag(item, getY(e));
+      }, 300);
+    }, { passive: false });
+
+    handle.addEventListener('mousedown', (e) => {
+      const item = handle.closest('.store-sortable');
+      longPressTimer = setTimeout(() => {
+        startDrag(item, getY(e));
+      }, 300);
+    });
+  });
+
+  document.addEventListener('touchmove', (e) => {
+    if (dragItem) { e.preventDefault(); updateDragPosition(getY(e)); }
+    else if (longPressTimer) { clearTimeout(longPressTimer); longPressTimer = null; }
+  }, { passive: false });
+
+  document.addEventListener('mousemove', (e) => {
+    if (dragItem) { updateDragPosition(getY(e)); }
+    else if (longPressTimer && Math.abs(getY(e) - startY) > 10) { clearTimeout(longPressTimer); longPressTimer = null; }
+  });
+
+  document.addEventListener('touchend', () => {
+    if (longPressTimer) { clearTimeout(longPressTimer); longPressTimer = null; }
+    if (dragItem) endDrag();
+  });
+
+  document.addEventListener('mouseup', () => {
+    if (longPressTimer) { clearTimeout(longPressTimer); longPressTimer = null; }
+    if (dragItem) endDrag();
   });
 }
 

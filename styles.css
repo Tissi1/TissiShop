@@ -365,7 +365,7 @@ body {
 }
 
 .store-filter img {
-  height: 28px;
+  height: 34px;
   width: auto;
   object-fit: contain;
   margin: -6px 0;
@@ -558,6 +558,30 @@ body {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.drag-handle {
+  cursor: grab;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  touch-action: none;
+  flex-shrink: 0;
+}
+.drag-handle:active { cursor: grabbing; }
+
+.store-sortable.dragging {
+  opacity: 0.85;
+  background: var(--card);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.18);
+  border-radius: var(--radius);
+}
+
+.drag-placeholder {
+  background: var(--border);
+  border-radius: var(--radius);
+  margin-bottom: 8px;
+  opacity: 0.4;
 }
 
 /* Forms */
