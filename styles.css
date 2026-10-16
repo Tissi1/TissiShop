@@ -346,8 +346,8 @@ body {
   display: flex;
   align-items: center;
   gap: 6px;
-  padding: 8px 16px;
-  border-radius: 3px;
+  padding: 11px 16px;
+  border-radius: 6px;
   border: 2px solid var(--border);
   background: var(--card);
   color: var(--text);
