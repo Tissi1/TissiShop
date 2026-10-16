@@ -1,4 +1,4 @@
-const APP_VERSION = '1.0.0-alpha-2';
+const APP_VERSION = '1.0.0-alpha-3';
 const $ = (sel, ctx = document) => ctx.querySelector(sel);
 const $$ = (sel, ctx = document) => [...ctx.querySelectorAll(sel)];
 
@@ -115,6 +115,15 @@ function render() {
   const main = $('#mainContent');
   if (state.page === 'list') renderList(main);
   else if (state.page === 'gestion') renderGestion(main);
+}
+
+function scrollActiveStoreFilter() {
+  const active = $('.store-filter.active');
+  if (!active) return;
+  const container = active.closest('.store-filters');
+  if (!container) return;
+  const left = active.offsetLeft - container.offsetWidth / 2 + active.offsetWidth / 2;
+  container.scrollTo({ left, behavior: 'smooth' });
 }
 
 // ─── LIST VIEW ───
@@ -304,8 +313,11 @@ function bindListEvents(products, stores) {
       const sid = btn.dataset.store;
       state.storeFilter = sid ? Number(sid) : null;
       render();
+      scrollActiveStoreFilter();
     });
   });
+
+  scrollActiveStoreFilter();
 
   $$('[data-action="toggle"]').forEach(btn => {
     btn.addEventListener('click', async () => {
