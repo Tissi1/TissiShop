@@ -1293,7 +1293,15 @@ async function autoBackup() {
     const data = await DB.exportAll();
     const hasData = data.products?.length > 0 || data.listItems?.length > 0;
     if (!hasData) return;
-    localStorage.setItem(BACKUP_KEY, JSON.stringify(data));
+    const json = JSON.stringify(data);
+    try {
+      localStorage.setItem(BACKUP_KEY, json);
+    } catch (quotaErr) {
+      const lite = JSON.parse(JSON.stringify(data));
+      if (lite.stores) lite.stores.forEach(s => { s.image = ''; });
+      if (lite.products) lite.products.forEach(p => { p.image = ''; });
+      localStorage.setItem(BACKUP_KEY, JSON.stringify(lite));
+    }
     localStorage.setItem(BACKUP_TS_KEY, new Date().toISOString());
   } catch (e) {}
 }
@@ -1639,7 +1647,7 @@ async function init() {
   $('#gestionHeader').classList.add('hidden');
 
   if (navigator.storage && navigator.storage.persist) {
-    navigator.storage.persist();
+    await navigator.storage.persist();
   }
 
   await restoreFromBackupIfNeeded();
