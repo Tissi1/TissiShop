@@ -111,10 +111,10 @@ function setGestionTab(tab) {
 }
 
 // ─── Render Router ───
-function render() {
+async function render() {
   const main = $('#mainContent');
-  if (state.page === 'list') renderList(main);
-  else if (state.page === 'gestion') renderGestion(main);
+  if (state.page === 'list') await renderList(main);
+  else if (state.page === 'gestion') await renderGestion(main);
 }
 
 function scrollActiveStoreFilter() {
@@ -309,15 +309,19 @@ function bindListEvents(products, stores) {
   });
 
   $$('.store-filter').forEach(btn => {
-    btn.addEventListener('click', () => {
+    btn.addEventListener('click', async () => {
       const sid = btn.dataset.store;
       state.storeFilter = sid ? Number(sid) : null;
-      render();
-      scrollActiveStoreFilter();
+      const filtersEl = $('.store-filters');
+      const prevScroll = filtersEl ? filtersEl.scrollLeft : 0;
+      await render();
+      const newFilters = $('.store-filters');
+      if (newFilters) {
+        newFilters.scrollLeft = prevScroll;
+        scrollActiveStoreFilter();
+      }
     });
   });
-
-  scrollActiveStoreFilter();
 
   $$('[data-action="toggle"]').forEach(btn => {
     btn.addEventListener('click', async () => {
