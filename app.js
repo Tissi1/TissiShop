@@ -1,4 +1,4 @@
-const APP_VERSION = '1.0.0-final';
+const APP_VERSION = '1.0.1';
 const $ = (sel, ctx = document) => ctx.querySelector(sel);
 const $$ = (sel, ctx = document) => [...ctx.querySelectorAll(sel)];
 
