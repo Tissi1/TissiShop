@@ -1,4 +1,4 @@
-const APP_VERSION = '1.0.0-alpha-4';
+const APP_VERSION = '1.0.0-alpha-6';
 const $ = (sel, ctx = document) => ctx.querySelector(sel);
 const $$ = (sel, ctx = document) => [...ctx.querySelectorAll(sel)];
 
@@ -332,9 +332,19 @@ function bindListEvents(products, stores) {
       const id = Number(btn.dataset.id);
       const item = await DB.get('listItems', id);
       if (!item) return;
+      const wasBought = item.bought;
       item.bought = !item.bought;
       item.updatedAt = new Date().toISOString();
       await DB.put('listItems', item);
+      if (!wasBought) {
+        const row = btn.closest('.list-item');
+        if (row) {
+          row.style.transition = 'opacity 0.35s ease, transform 0.35s ease';
+          row.style.opacity = '0';
+          row.style.transform = 'translateX(40px)';
+          await new Promise(r => setTimeout(r, 350));
+        }
+      }
       render();
     });
   });

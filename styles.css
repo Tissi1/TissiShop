@@ -69,6 +69,16 @@
   color: var(--text);
 }
 
+[data-theme="dark"] .store-filter {
+  background: white;
+  color: #111;
+}
+
+[data-theme="dark"] .store-filter.active {
+  background: var(--accent);
+  color: white;
+}
+
 [data-theme="dark"] .bottom-nav {
   background: var(--card);
   border-color: var(--border);
