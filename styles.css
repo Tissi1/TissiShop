@@ -293,9 +293,12 @@ body {
   border-radius: var(--radius-sm);
   box-shadow: 0 4px 12px rgba(0,0,0,0.12);
   z-index: 50;
-  max-height: 240px;
-  overflow-y: auto;
   display: none;
+}
+
+.suggestions-list {
+  max-height: 200px;
+  overflow-y: auto;
 }
 
 .suggestions.open { display: block; }
@@ -654,6 +657,41 @@ body {
 .btn-secondary { background: var(--bg); color: var(--text); }
 .btn-block { display: block; width: 100%; }
 
+/* Image Popup */
+.image-popup-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.9);
+  z-index: 400;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.2s ease-out;
+}
+.image-popup-img {
+  max-width: 90vw;
+  max-height: 85vh;
+  border-radius: 8px;
+  object-fit: contain;
+  touch-action: none;
+  user-select: none;
+  transition: transform 0.1s ease-out;
+}
+.image-popup-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: rgba(255,255,255,0.15);
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
 /* Modal */
 .modal-overlay {
   position: fixed;
@@ -823,18 +861,20 @@ body {
 .toast {
   position: fixed;
   bottom: 80px;
-  left: 50%;
-  transform: translateX(-50%);
-  padding: 12px 24px;
-  border-radius: 24px;
-  font-size: 14px;
+  left: 16px;
+  right: 16px;
+  padding: 16px 24px;
+  border-radius: 12px;
+  font-size: 16px;
   font-weight: 500;
   z-index: 300;
   animation: fadeInUp 0.3s ease-out;
   display: flex;
   gap: 12px;
   align-items: center;
+  justify-content: center;
   color: white;
+  text-align: center;
 }
 
 .toast-success {
@@ -861,6 +901,11 @@ body {
   font-size: 14px;
   cursor: pointer;
   text-transform: uppercase;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 @keyframes fadeInUp {

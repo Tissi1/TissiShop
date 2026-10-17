@@ -65,6 +65,80 @@ function showToast(msg, undoFn, type = 'success') {
   setTimeout(() => { if (c.contains(t)) c.removeChild(t); }, 4000);
 }
 
+function showImagePopup(src) {
+  const overlay = document.createElement('div');
+  overlay.className = 'image-popup-overlay';
+  let scale = 1, originX = 0, originY = 0, startDist = 0, startScale = 1;
+  let translateX = 0, translateY = 0, startX = 0, startY = 0, isPanning = false;
+  const img = document.createElement('img');
+  img.src = src;
+  img.className = 'image-popup-img';
+  overlay.appendChild(img);
+
+  const closeBtn = document.createElement('button');
+  closeBtn.className = 'image-popup-close';
+  closeBtn.innerHTML = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>';
+  closeBtn.addEventListener('click', () => overlay.remove());
+  overlay.appendChild(closeBtn);
+
+  function updateTransform() {
+    img.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scale})`;
+  }
+
+  overlay.addEventListener('click', (e) => {
+    if (e.target === overlay) overlay.remove();
+  });
+
+  img.addEventListener('dblclick', () => {
+    if (scale > 1) { scale = 1; translateX = 0; translateY = 0; }
+    else { scale = 2.5; }
+    updateTransform();
+  });
+
+  img.addEventListener('touchstart', (e) => {
+    if (e.touches.length === 2) {
+      e.preventDefault();
+      startDist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
+      startScale = scale;
+    } else if (e.touches.length === 1 && scale > 1) {
+      isPanning = true;
+      startX = e.touches[0].clientX - translateX;
+      startY = e.touches[0].clientY - translateY;
+    }
+  }, { passive: false });
+
+  img.addEventListener('touchmove', (e) => {
+    if (e.touches.length === 2) {
+      e.preventDefault();
+      const dist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
+      scale = Math.min(5, Math.max(1, startScale * (dist / startDist)));
+      if (scale <= 1) { translateX = 0; translateY = 0; }
+      updateTransform();
+    } else if (e.touches.length === 1 && isPanning) {
+      e.preventDefault();
+      translateX = e.touches[0].clientX - startX;
+      translateY = e.touches[0].clientY - startY;
+      updateTransform();
+    }
+  }, { passive: false });
+
+  img.addEventListener('touchend', (e) => {
+    if (e.touches.length < 2) { isPanning = false; }
+    if (scale <= 1) { scale = 1; translateX = 0; translateY = 0; updateTransform(); }
+  });
+
+  let wheelScale = scale;
+  overlay.addEventListener('wheel', (e) => {
+    e.preventDefault();
+    wheelScale = Math.min(5, Math.max(1, scale + (e.deltaY > 0 ? -0.3 : 0.3)));
+    scale = wheelScale;
+    if (scale <= 1) { translateX = 0; translateY = 0; }
+    updateTransform();
+  }, { passive: false });
+
+  document.body.appendChild(overlay);
+}
+
 function showModal(html, onClose) {
   const c = $('#modalContainer');
   c.innerHTML = `<div class="modal-overlay"><div class="modal">${html}</div></div>`;
@@ -245,6 +319,12 @@ function bindListEvents(products, stores) {
   const suggestionsEl = $('#suggestions');
 
   searchInput?.addEventListener('input', () => {
+    const raw = searchInput.value;
+    if (raw.length > 0 && /^[a-zà-ö]/.test(raw)) {
+      const pos = searchInput.selectionStart;
+      searchInput.value = raw[0].toUpperCase() + raw.slice(1);
+      searchInput.setSelectionRange(pos, pos);
+    }
     state.searchQuery = searchInput.value;
     const q = searchInput.value.trim().toLowerCase();
     if (q.length < 1) { suggestionsEl.classList.remove('open'); return; }
@@ -253,13 +333,17 @@ function bindListEvents(products, stores) {
       .filter(p => p.name.toLowerCase().includes(q))
       .slice(0, 8);
 
-    let shtml = matches.map(p => `
+    const itemsHtml = matches.map(p => `
       <div class="suggestion-item" data-product-id="${p.id}">
         <span>${escapeHtml(p.name)}</span>
         <button class="add-btn" data-product-id="${p.id}">+</button>
       </div>
     `).join('');
-    shtml += `<div class="suggestion-create" data-create="${escapeHtml(searchInput.value.trim())}">+ Créer un nouveau produit "${escapeHtml(searchInput.value.trim())}"</div>`;
+    const trimmed = searchInput.value.trim();
+    let shtml = `<div class="suggestions-list">${itemsHtml}</div>`;
+    if (trimmed.length >= 3) {
+      shtml += `<div class="suggestion-create" data-create="${escapeHtml(trimmed)}">+ Créer un nouveau produit "${escapeHtml(trimmed)}"</div>`;
+    }
     suggestionsEl.innerHTML = shtml;
     suggestionsEl.classList.add('open');
 
@@ -358,6 +442,11 @@ function bindListEvents(products, stores) {
     });
   });
 
+  $$('.list-item .item-image').forEach(img => {
+    img.style.cursor = 'pointer';
+    img.addEventListener('click', () => showImagePopup(img.src));
+  });
+
   $('#voiceBtn')?.addEventListener('click', startVoiceInput);
 }
 
@@ -366,6 +455,11 @@ async function addProductToList(productId) {
   if (!product) return;
   const list = await ensureActiveList();
   const items = await DB.getByIndex('listItems', 'listId', list.id);
+  const already = items.find(i => i.productId === product.id && !i.bought);
+  if (already) {
+    showToast(`${product.name} est déjà dans la liste`, null, 'error');
+    return;
+  }
   const now = new Date().toISOString();
   await DB.add('listItems', {
     listId: list.id, productId: product.id, name: product.name,
@@ -569,7 +663,8 @@ function startVoiceInput() {
   btn.classList.add('listening');
 
   recognition.onresult = (e) => {
-    const text = e.results[0][0].transcript;
+    let text = e.results[0][0].transcript.trim();
+    if (text.length > 0) text = text[0].toUpperCase() + text.slice(1);
     const input = $('#searchInput');
     if (input) {
       input.value = text;
