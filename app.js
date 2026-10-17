@@ -318,7 +318,11 @@ function bindListEvents(products, stores) {
       const newFilters = $('.store-filters');
       if (newFilters) {
         newFilters.scrollLeft = prevScroll;
-        scrollActiveStoreFilter();
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            scrollActiveStoreFilter();
+          });
+        });
       }
     });
   });
@@ -1345,6 +1349,26 @@ function scheduleAutoBackup() {
   });
 }
 
+const DEFAULT_STORE_LOGOS = {
+  'Carrefour': './logos/carrefour.svg',
+  'Leclerc': './logos/leclerc.svg',
+  'Intermarché': './logos/intermarche.svg',
+  'Lidl': './logos/lidl.svg',
+  'Super U': './logos/superu.svg',
+  'Chlorophylle': './logos/chlorophylle.png'
+};
+
+async function migrateStoreLogos() {
+  const stores = await DB.getAll('stores');
+  for (const store of stores) {
+    const defaultLogo = DEFAULT_STORE_LOGOS[store.name];
+    if (defaultLogo && !store.image) {
+      store.image = defaultLogo;
+      await DB.put('stores', store);
+    }
+  }
+}
+
 // ─── Init ───
 async function seedDatabase() {
   const existing = await DB.getAll('products');
@@ -1675,6 +1699,7 @@ async function init() {
 
   await restoreFromBackupIfNeeded();
   await seedDatabase();
+  await migrateStoreLogos();
   render();
 
   scheduleAutoBackup();
