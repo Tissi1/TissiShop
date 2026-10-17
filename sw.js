@@ -1,11 +1,17 @@
-const CACHE_NAME = 'ma-liste-courses-v13';
+const CACHE_NAME = 'ma-liste-courses-v16';
 const ASSETS = [
   './',
   './index.html',
   './styles.css',
   './app.js',
   './db.js',
-  './manifest.json'
+  './manifest.json',
+  './logos/carrefour.svg',
+  './logos/leclerc.svg',
+  './logos/intermarche.svg',
+  './logos/lidl.svg',
+  './logos/superu.svg',
+  './logos/chlorophylle.png'
 ];
 
 self.addEventListener('install', (e) => {

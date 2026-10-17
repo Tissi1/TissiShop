@@ -1,4 +1,4 @@
-const APP_VERSION = '1.0.0-alpha-3';
+const APP_VERSION = '1.0.0-alpha-4';
 const $ = (sel, ctx = document) => ctx.querySelector(sel);
 const $$ = (sel, ctx = document) => [...ctx.querySelectorAll(sel)];
 
@@ -1362,10 +1362,17 @@ async function seedDatabase() {
   }
 
   const stores = [
-    'Carrefour', 'Leclerc', 'Intermarché', 'Auchan', 'Lidl', 'Picard', 'Chlorophylle'
+    { name: 'Carrefour', image: './logos/carrefour.svg' },
+    { name: 'Leclerc', image: './logos/leclerc.svg' },
+    { name: 'Intermarché', image: './logos/intermarche.svg' },
+    { name: 'Auchan', image: '' },
+    { name: 'Lidl', image: './logos/lidl.svg' },
+    { name: 'Super U', image: './logos/superu.svg' },
+    { name: 'Picard', image: '' },
+    { name: 'Chlorophylle', image: './logos/chlorophylle.png' }
   ];
   for (let i = 0; i < stores.length; i++) {
-    await DB.add('stores', { name: stores[i], image: '', order: i, createdAt: now, updatedAt: now });
+    await DB.add('stores', { name: stores[i].name, image: stores[i].image, order: i, createdAt: now, updatedAt: now });
   }
 
   const products = [
