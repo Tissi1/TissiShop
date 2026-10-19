@@ -1,4 +1,4 @@
-const APP_VERSION = '1.0.2';
+const APP_VERSION = '1.0.3';
 const $ = (sel, ctx = document) => ctx.querySelector(sel);
 const $$ = (sel, ctx = document) => [...ctx.querySelectorAll(sel)];
 
@@ -231,6 +231,7 @@ async function renderList(container) {
   });
 
   let html = `
+    <h1 class="page-title">Ma liste de courses</h1>
     <div class="search-wrap">
       <div class="search-box">
         <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
@@ -699,6 +700,7 @@ async function renderProducts(container) {
   products.sort((a, b) => a.name.localeCompare(b.name, 'fr'));
 
   let html = `
+    <h1 class="page-title">Produits</h1>
     <div class="card">
       <div class="search-wrap" style="margin-bottom:8px">
         <div class="search-box">
@@ -894,6 +896,7 @@ async function renderStores(container) {
   stores.sort((a, b) => (a.order || 0) - (b.order || 0));
 
   let html = `
+    <h1 class="page-title">Magasins</h1>
     <div class="card">
       <h3 class="section-title">Ajouter un magasin</h3>
       <div class="form-group">
@@ -1166,6 +1169,7 @@ async function renderCategories(container) {
   categories.sort((a, b) => a.name.localeCompare(b.name, 'fr'));
 
   let html = `
+    <h1 class="page-title">Catégories</h1>
     <div class="card">
       <h3 class="section-title">Ajouter une catégorie</h3>
       <div class="form-row">
@@ -1259,6 +1263,7 @@ async function renderCategories(container) {
 // ─── SETTINGS ───
 async function renderSettings(container) {
   container.innerHTML = `
+    <h1 class="page-title">Paramètres</h1>
     <div class="settings-section">
       <h3 class="section-title" style="margin-bottom:12px">Apparence</h3>
       <div class="theme-toggle" id="themeToggle">

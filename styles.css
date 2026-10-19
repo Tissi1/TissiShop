@@ -401,6 +401,25 @@ body {
   box-shadow: var(--shadow);
 }
 
+/* Page title */
+.page-title {
+  font-size: 24px;
+  font-weight: 800;
+  background: linear-gradient(135deg, #7C3AED, #A78BFA, #7C3AED);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 14px;
+  letter-spacing: -0.3px;
+  text-align: center;
+}
+
+[data-theme="dark"] .page-title {
+  background: linear-gradient(135deg, #A78BFA, #C4B5FD, #A78BFA);
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+
 /* Search */
 .search-wrap {
   display: flex;
