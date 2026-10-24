@@ -556,21 +556,6 @@ body {
 
 .suggestion-create:active { background: var(--accent-light); }
 
-/* List toolbar (search + filters) */
-.list-toolbar {
-  transition: max-height 0.35s ease, opacity 0.3s ease;
-  max-height: 200px;
-  opacity: 1;
-  overflow: visible;
-}
-
-.list-toolbar.hidden-scroll {
-  max-height: 0;
-  opacity: 0;
-  overflow: hidden;
-  pointer-events: none;
-}
-
 /* Store filter tabs */
 .store-filters {
   display: flex;

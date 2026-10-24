@@ -328,21 +328,6 @@ function bindListEvents(products, stores) {
     }
   });
 
-  const mainEl = $('.main');
-  const toolbarEl = $('#listToolbar');
-  if (mainEl && toolbarEl) {
-    let lastScrollTop = 0;
-    mainEl.addEventListener('scroll', () => {
-      const st = mainEl.scrollTop;
-      if (st > 30 && st > lastScrollTop) {
-        toolbarEl.classList.add('hidden-scroll');
-      } else {
-        toolbarEl.classList.remove('hidden-scroll');
-      }
-      lastScrollTop = st;
-    });
-  }
-
   const searchInput = $('#searchInput');
   const suggestionsEl = $('#suggestions');
 
