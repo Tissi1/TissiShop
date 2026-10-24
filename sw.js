@@ -1,4 +1,4 @@
-const CACHE_NAME = 'ma-liste-courses-v27';
+const CACHE_NAME = 'ma-liste-courses-v29';
 const ASSETS = [
   './',
   './index.html',
@@ -8,11 +8,11 @@ const ASSETS = [
   './manifest.json',
   './icon-192.svg',
   './icon-512.svg',
-  './logos/carrefour.svg',
-  './logos/leclerc.svg',
-  './logos/intermarche.svg',
-  './logos/lidl.svg',
-  './logos/superu.svg',
+  './logos/carrefour.png',
+  './logos/leclerc.png',
+  './logos/intermarche.png',
+  './logos/lidl.png',
+  './logos/superu.png',
   './logos/chlorophylle.png'
 ];
 

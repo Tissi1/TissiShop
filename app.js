@@ -1,4 +1,4 @@
-const APP_VERSION = '1.0.3';
+const APP_VERSION = '1.0.4';
 const $ = (sel, ctx = document) => ctx.querySelector(sel);
 const $$ = (sel, ctx = document) => [...ctx.querySelectorAll(sel)];
 
@@ -1472,11 +1472,11 @@ function scheduleAutoBackup() {
 }
 
 const DEFAULT_STORE_LOGOS = {
-  'Carrefour': './logos/carrefour.svg',
-  'Leclerc': './logos/leclerc.svg',
-  'Intermarché': './logos/intermarche.svg',
-  'Lidl': './logos/lidl.svg',
-  'Super U': './logos/superu.svg',
+  'Carrefour': './logos/carrefour.png',
+  'Leclerc': './logos/leclerc.png',
+  'Intermarché': './logos/intermarche.png',
+  'Lidl': './logos/lidl.png',
+  'Super U': './logos/superu.png',
   'Chlorophylle': './logos/chlorophylle.png'
 };
 
@@ -1484,7 +1484,7 @@ async function migrateStoreLogos() {
   const stores = await DB.getAll('stores');
   for (const store of stores) {
     const defaultLogo = DEFAULT_STORE_LOGOS[store.name];
-    if (defaultLogo && !store.image) {
+    if (defaultLogo && (!store.image || store.image.endsWith('.svg'))) {
       store.image = defaultLogo;
       await DB.put('stores', store);
     }
@@ -1508,12 +1508,12 @@ async function seedDatabase() {
   }
 
   const stores = [
-    { name: 'Carrefour', image: './logos/carrefour.svg' },
-    { name: 'Leclerc', image: './logos/leclerc.svg' },
-    { name: 'Intermarché', image: './logos/intermarche.svg' },
+    { name: 'Carrefour', image: './logos/carrefour.png' },
+    { name: 'Leclerc', image: './logos/leclerc.png' },
+    { name: 'Intermarché', image: './logos/intermarche.png' },
     { name: 'Auchan', image: '' },
-    { name: 'Lidl', image: './logos/lidl.svg' },
-    { name: 'Super U', image: './logos/superu.svg' },
+    { name: 'Lidl', image: './logos/lidl.png' },
+    { name: 'Super U', image: './logos/superu.png' },
     { name: 'Picard', image: '' },
     { name: 'Chlorophylle', image: './logos/chlorophylle.png' }
   ];
