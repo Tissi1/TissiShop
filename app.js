@@ -231,25 +231,27 @@ async function renderList(container) {
   });
 
   let html = `
-    <h1 class="page-title">Ma liste de courses</h1>
-    <div class="search-wrap">
-      <div class="search-box">
-        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-        <input type="text" id="searchInput" placeholder="Rechercher un produit..." value="${escapeHtml(state.searchQuery)}" autocomplete="off">
-        <div class="suggestions" id="suggestions"></div>
+    <h1 class="page-title"><span>Ma liste de courses</span></h1>
+    <div class="list-toolbar" id="listToolbar">
+      <div class="search-wrap">
+        <div class="search-box">
+          <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" id="searchInput" placeholder="Rechercher un produit..." value="${escapeHtml(state.searchQuery)}" autocomplete="off">
+          <div class="suggestions" id="suggestions"></div>
+        </div>
+        <button class="voice-btn" id="voiceBtn" aria-label="Saisie vocale">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+        </button>
       </div>
-      <button class="voice-btn" id="voiceBtn" aria-label="Saisie vocale">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
-      </button>
-    </div>
 
-    <div class="store-filters">
+      <div class="store-filters">
       <button class="store-filter ${!state.storeFilter ? 'active' : ''}" data-store="">Tous (${toBuy.length})</button>
       ${stores.map(s => `
         <button class="store-filter ${state.storeFilter === s.id ? 'active' : ''}" data-store="${s.id}">
           ${s.image ? `<img src="${s.image}" alt="">` : `${escapeHtml(s.name)}`} (${storeItemCounts[s.id] || 0})
         </button>
       `).join('')}
+      </div>
     </div>
   `;
 
@@ -316,6 +318,31 @@ function renderListItem(item, isBought) {
 }
 
 function bindListEvents(products, stores) {
+  $$('.list-item .item-name').forEach(el => {
+    if (el.scrollWidth > el.clientWidth) {
+      const text = el.textContent;
+      el.classList.add('scrolling');
+      el.innerHTML = `<span>${escapeHtml(text)}   •   ${escapeHtml(text)}   •   </span>`;
+      const charCount = text.length;
+      el.style.setProperty('--scroll-duration', Math.max(3, charCount * 0.25) + 's');
+    }
+  });
+
+  const mainEl = $('.main');
+  const toolbarEl = $('#listToolbar');
+  if (mainEl && toolbarEl) {
+    let lastScrollTop = 0;
+    mainEl.addEventListener('scroll', () => {
+      const st = mainEl.scrollTop;
+      if (st > 30 && st > lastScrollTop) {
+        toolbarEl.classList.add('hidden-scroll');
+      } else {
+        toolbarEl.classList.remove('hidden-scroll');
+      }
+      lastScrollTop = st;
+    });
+  }
+
   const searchInput = $('#searchInput');
   const suggestionsEl = $('#suggestions');
 
@@ -700,7 +727,7 @@ async function renderProducts(container) {
   products.sort((a, b) => a.name.localeCompare(b.name, 'fr'));
 
   let html = `
-    <h1 class="page-title">Produits</h1>
+    <h1 class="page-title"><span>Produits</span></h1>
     <div class="card">
       <div class="search-wrap" style="margin-bottom:8px">
         <div class="search-box">
@@ -896,7 +923,7 @@ async function renderStores(container) {
   stores.sort((a, b) => (a.order || 0) - (b.order || 0));
 
   let html = `
-    <h1 class="page-title">Magasins</h1>
+    <h1 class="page-title"><span>Magasins</span></h1>
     <div class="card">
       <h3 class="section-title">Ajouter un magasin</h3>
       <div class="form-group">
@@ -1169,7 +1196,7 @@ async function renderCategories(container) {
   categories.sort((a, b) => a.name.localeCompare(b.name, 'fr'));
 
   let html = `
-    <h1 class="page-title">Catégories</h1>
+    <h1 class="page-title"><span>Catégories</span></h1>
     <div class="card">
       <h3 class="section-title">Ajouter une catégorie</h3>
       <div class="form-row">
@@ -1263,7 +1290,7 @@ async function renderCategories(container) {
 // ─── SETTINGS ───
 async function renderSettings(container) {
   container.innerHTML = `
-    <h1 class="page-title">Paramètres</h1>
+    <h1 class="page-title"><span>Paramètres</span></h1>
     <div class="settings-section">
       <h3 class="section-title" style="margin-bottom:12px">Apparence</h3>
       <div class="theme-toggle" id="themeToggle">
