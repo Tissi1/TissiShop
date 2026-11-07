@@ -424,8 +424,11 @@ function bindListEvents(products, stores) {
     });
   });
 
-  $$('[data-action="toggle"]').forEach(btn => {
-    btn.addEventListener('click', async () => {
+  $$('.list-item').forEach(row => {
+    row.addEventListener('click', async (e) => {
+      if (e.target.closest('[data-action="note"]')) return;
+      const btn = row.querySelector('[data-action="toggle"]');
+      if (!btn) return;
       const id = Number(btn.dataset.id);
       const item = await DB.get('listItems', id);
       if (!item) return;
@@ -434,13 +437,18 @@ function bindListEvents(products, stores) {
       item.updatedAt = new Date().toISOString();
       await DB.put('listItems', item);
       if (!wasBought) {
-        const row = btn.closest('.list-item');
-        if (row) {
-          row.style.transition = 'opacity 0.35s ease, transform 0.35s ease';
-          row.style.opacity = '0';
-          row.style.transform = 'translateX(40px)';
-          await new Promise(r => setTimeout(r, 350));
-        }
+        const h = row.offsetHeight + 8;
+        row.style.transition = 'opacity 0.3s ease, transform 0.3s ease, max-height 0.3s ease, margin 0.3s ease, padding 0.3s ease';
+        row.style.maxHeight = h + 'px';
+        row.style.overflow = 'hidden';
+        row.style.opacity = '0';
+        row.style.transform = 'translateX(40px)';
+        await new Promise(r => setTimeout(r, 50));
+        row.style.maxHeight = '0';
+        row.style.marginBottom = '0';
+        row.style.paddingTop = '0';
+        row.style.paddingBottom = '0';
+        await new Promise(r => setTimeout(r, 300));
       }
       render();
     });
